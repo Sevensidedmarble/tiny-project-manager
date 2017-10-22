@@ -23,7 +23,7 @@ You can shorten them further by using flag syntax, such as 'tpm -ta' for adding 
 import sys
 from datetime import datetime, timedelta
 
-global name; name = None
+global name; name = None # PROGRAM NAME TAG. DO NOT TOUCH THIS COMMENT.
 global features; features = []
 global log; log = []
 global working_since; working_since = None
@@ -38,6 +38,7 @@ def add_task(name, description=None):
 
 def set_name(new_name):
     name = new_name
+    return name
 
 def start(feature=None):
     # check if we're currently working.
@@ -63,7 +64,7 @@ def display_help():
 def main():
     first_arg = get_arg(1)
     second_arg = get_arg(2)
-    second_arg = get_arg(3)
+    third_arg = get_arg(3)
 
     if first_arg is None:
         display_help()
@@ -86,7 +87,21 @@ def parse_name_command(argument):
         Usage: tpm name "[PROJECT NAME]"
         """)
     else:
-        set_name(argument)
+        n = set_name(argument)
+
+        with open('tpm.py', 'r') as file:
+            lines = file.readlines()
+
+        file = open("tpm.py", "r+")
+        line_number = [x for x in range(len(lines)) if '# PROGRAM NAME TAG. DO NOT TOUCH THIS COMMENT.' in lines[x]]
+        line_number = line_number[0]
+        line = lines[line_number]
+        line = line.replace('name = None', ('name = \'' + n + '\''))
+        print(line)
+        lines[line_number] = line
+
+        with open('new.py', 'w') as file:
+            file.writelines(lines)
 
 def parse_features_command():
     pass
